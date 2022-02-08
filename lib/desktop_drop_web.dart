@@ -1,0 +1,95 @@
+// ignore_for_file: always_specify_types
+import 'dart:async';
+// In order to *not* need this ignore, consider extracting the "web" version
+// of your plugin as a separate package, instead of inlining it in the same
+// package as the core of your plugin.
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html show window, Url;
+import 'dart:html';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+
+import 'src/drop_item.dart';
+
+/// A web implementation of the DesktopDrop plugin.
+class DesktopDropWeb {
+  final MethodChannel channel;
+
+  DesktopDropWeb._private(this.channel);
+
+  static void registerWith(Registrar registrar) {
+    final MethodChannel channel = MethodChannel(
+      'desktop_drop',
+      const StandardMethodCodec(),
+      registrar,
+    );
+
+    final DesktopDropWeb pluginInstance = DesktopDropWeb._private(channel);
+    channel.setMethodCallHandler(pluginInstance.handleMethodCall);
+    pluginInstance._registerEvents();
+  }
+
+  void _registerEvents() {
+    html.window.onDrop.listen((MouseEvent event) {
+      event.preventDefault();
+
+      final List<WebDropItem> results = <WebDropItem>[];
+
+      try {
+        final List<File>? items = event.dataTransfer.files;
+        if (items != null) {
+          for (int index = 0; index < items.length; index++) {
+            results.add(WebDropItem(
+              uri: html.Url.createObjectUrl(items[index]),
+              name: items[index].name,
+              size: items[index].size,
+              type: items[index].type,
+              relativePath: items[index].relativePath,
+              lastModified: items[index].lastModifiedDate,
+            ),);
+          }
+        }
+      } catch (e, s) {
+        debugPrint('desktop_drop_web: $e $s');
+      } finally {
+        channel.invokeMethod(
+          'performOperation_web',
+          results.map((WebDropItem e) => e.toJson()).toList(),
+        );
+      }
+    });
+
+    html.window.onDragEnter.listen((MouseEvent event) {
+      event.preventDefault();
+      channel.invokeMethod('entered', [
+        event.client.x.toDouble(),
+        event.client.y.toDouble(),
+      ]);
+    });
+
+    html.window.onDragOver.listen((MouseEvent event) {
+      event.preventDefault();
+      channel.invokeMethod('updated', [
+        event.client.x.toDouble(),
+        event.client.y.toDouble(),
+      ]);
+    });
+
+    html.window.onDragLeave.listen((MouseEvent event) {
+      event.preventDefault();
+      channel.invokeMethod('exited', [
+        event.client.x.toDouble(),
+        event.client.y.toDouble(),
+      ]);
+    });
+  }
+
+  Future<dynamic> handleMethodCall(MethodCall call) async {
+    throw PlatformException(
+      code: 'Unimplemented',
+      details: "desktop_drop for web doesn't implement '${call.method}'",
+    );
+  }
+}
