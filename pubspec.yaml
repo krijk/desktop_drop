@@ -3,7 +3,7 @@ description: SA version. A plugin which allows user dragging files to your flutt
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.3.0+2
+version: 0.3.0+3
 homepage: https://github.com/MixinNetwork/flutter-plugins/tree/main/packages/desktop_drop
 
 environment:
