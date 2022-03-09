@@ -1,5 +1,8 @@
 # ex02
 
+画面のDropAreaに Dropしたファイルをリストに反映する
+
+# TODO
 Try to add a Clear function
 MainClass から subの Widget機能を呼び出す方法がよく分からない
 GetX or Provider(/Consumer) が有用かも
