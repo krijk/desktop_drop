@@ -67,14 +67,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     SizedBox(
                       width: constraints.maxWidth,
                       height: constraints.maxHeight,
-                      child: DragDropTarget(
-                        update: onUpdate,
+                      child: IgnorePointer(
+                        child: DragDropTarget(
+                          update: onUpdate,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-
             ],
           );
         },
@@ -126,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-  void onDelete(){
+  void onDelete() {
     setState(() {
       Data.clear();
     });
@@ -222,7 +223,6 @@ class _DragDropTargetState extends State<DragDropTarget> {
     return Text(_list.map((XFile e) => Uri.decodeFull(e.path)).join('\n'));
   }
 }
-
 
 class _SpeedDial extends StatelessWidget {
   static const Color kDarkBlue = Color(0xFF1565C0);
