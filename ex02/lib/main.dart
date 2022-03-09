@@ -3,6 +3,10 @@ import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 
+import 'data.dart';
+
+late Data data;
+
 void main() {
   runApp(const MyApp());
 }
@@ -24,15 +28,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -40,15 +35,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<String> list = <String>[
-    'path0',
-    'path1',
-    'path2',
-    'path3',
-    'path4',
-  ];
 
-  ExampleDragTarget dragTarget = const ExampleDragTarget();
+  @override
+  void initState() {
+    data = Data();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,19 +59,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     _listHeader(),
                     Expanded(
                       child: ListView.builder(
+                        itemCount: data.list.length,
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemBuilder: (BuildContext context, int index) {
-                          if (index >= list.length) {
-                            final List<String> toAdd = <String>[];
-                            final int idxFr = list.length;
-                            final int idxTo = idxFr + 4;
-                            for (int i = idxFr; i < idxTo; i++) {
-                              final String msg = 'path$i';
-                              toAdd.add(msg);
-                            }
-                            list.addAll(toAdd);
-                          }
-                          return _listItem('state', list[index]);
+                          return _listItem('state', data.list[index]);
                           // return _menuItem(list[index], 'unknown');
                         },
                       ),
@@ -87,8 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
-              const Expanded(
-                child: ExampleDragTarget(),
+              Expanded(
+                child: ExampleDragTarget(update: onUpdate,),
               ),
             ],
           );
@@ -106,7 +89,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(child: Text('State', style: TextStyle(fontWeight: FontWeight.bold))),
             Expanded(
               flex: 3,
-                child: Text('Path', style: TextStyle(fontWeight: FontWeight.bold)),),
+              child: Text('Path', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
           ],
         ),
       ),
@@ -135,18 +119,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void showSnackBar(String content) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(content),
-        duration: const Duration(milliseconds: 1500),
-      ),
-    );
+  void onUpdate(int val) {
+    setState(() {
+    });
   }
 }
 
 class ExampleDragTarget extends StatefulWidget {
-  const ExampleDragTarget({Key? key}) : super(key: key);
+
+  final ValueChanged<int> update;
+
+  const ExampleDragTarget({Key? key, required this.update}) : super(key: key);
 
   @override
   _ExampleDragTargetState createState() => _ExampleDragTargetState();
@@ -173,10 +156,13 @@ class _ExampleDragTargetState extends State<ExampleDragTarget> {
 
         debugPrint('onDragDone:');
         for (final XFile file in detail.files) {
-          debugPrint('  ${file.path} ${file.name}'
-              '  ${await file.lastModified()}'
-              '  ${await file.length()}'
-              '  ${file.mimeType}',);
+          debugPrint(
+            '  ${file.path} ${file.name}'
+            '  ${await file.lastModified()}'
+            '  ${await file.length()}'
+            '  ${file.mimeType}',
+          );
+          data.add(file.path);
         }
       },
       onDragUpdated: (DropEventDetails details) {
@@ -202,7 +188,7 @@ class _ExampleDragTargetState extends State<ExampleDragTarget> {
         color: _dragging ? Colors.blue.withOpacity(0.4) : Colors.black26,
         child: Stack(
           children: [
-          _contents(),
+            _contents(),
             if (offset != null)
               Align(
                 alignment: Alignment.topRight,
@@ -217,12 +203,11 @@ class _ExampleDragTargetState extends State<ExampleDragTarget> {
     );
   }
 
-  Widget _contents(){
+  Widget _contents() {
     if (_list.isEmpty) {
       return const Center(child: Text('Drop here'));
     }
 
     return Text(_list.map((XFile e) => Uri.decodeFull(e.path)).join('\n'));
   }
-
 }
