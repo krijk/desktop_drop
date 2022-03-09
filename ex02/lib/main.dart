@@ -59,10 +59,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     _listHeader(),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: data.list.length,
+                        itemCount: Data.list.length,
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemBuilder: (BuildContext context, int index) {
-                          return _listItem('state', data.list[index]);
+                          return _listItem('state', Data.getFilePath(index));
                           // return _menuItem(list[index], 'unknown');
                         },
                       ),
@@ -107,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               flex: 3,
               child: Text(
-                title,
+                Uri.decodeFull( title),
                 style: const TextStyle(fontSize: 18.0),
               ),
             ),
@@ -149,20 +149,24 @@ class _ExampleDragTargetState extends State<ExampleDragTarget> {
   @override
   Widget build(BuildContext context) {
     return DropTarget(
-      onDragDone: (DropDoneDetails detail) async {
+      onDragDone: (DropDoneDetails details) async {
         setState(() {
-          _list.addAll(detail.files);
+          for (final XFile file in details.files) {
+            Data.append(file);
+          }
         });
 
+        widget.update(0);
+
         debugPrint('onDragDone:');
-        for (final XFile file in detail.files) {
+        for (final XFile file in details.files) {
           debugPrint(
-            '  ${file.path} ${file.name}'
-            '  ${await file.lastModified()}'
-            '  ${await file.length()}'
-            '  ${file.mimeType}',
+            '${Uri.decodeFull(file.path)} '
+            ' ${Uri.decodeFull(file.name)}'
+            // ' ${await file.lastModified()}'
+            // ' ${await file.length()}'
+            ' ${file.mimeType}',
           );
-          data.add(file.path);
         }
       },
       onDragUpdated: (DropEventDetails details) {
