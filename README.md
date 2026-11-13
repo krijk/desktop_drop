@@ -1,5 +1,10 @@
 # desktop_drop
 
+meld /home/sa/AndroidStudioFlutter/desktop_drop/lib /home/sa/AndroidStudioFlutter/desktop_drop-0.3.0_org/lib
+Flutter 3.0.0 に Upした。以下のエラー発生
+ERROR: ../../../.pub-cache/hosted/pub.dev/file-6.1.2/lib/src/interface/file.dart:15:16: Error: The method 'File.create' has fewer named arguments
+dependency_overrides: file: ^7.0.0 と Overrideした
+
 [![Pub](https://img.shields.io/pub/v/desktop_drop.svg)](https://pub.dev/packages/desktop_drop)
 
 A plugin which allows user dragging files to your flutter desktop applications.

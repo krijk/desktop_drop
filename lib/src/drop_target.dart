@@ -35,14 +35,14 @@ typedef OnDragCallback<Detail> = void Function(Detail details);
 
 class DropTarget extends StatefulWidget {
   const DropTarget({
-    Key? key,
+    super.key,
     required this.child,
     this.onDragEntered,
     this.onDragExited,
     this.onDragDone,
     this.onDragUpdated,
     this.enable = true,
-  }) : super(key: key);
+  });
 
   final Widget child;
 

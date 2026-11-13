@@ -4,7 +4,7 @@ description: Demonstrates how to use the desktop_drop plugin.
 publish_to: 'none'
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -14,6 +14,10 @@ dependencies:
     path: ../
   cross_file: ^0.3.2
   cupertino_icons: ^1.0.2
+
+  material_ui: any
+  shared_preferences_web: any
+#  flutter_web_plugins: any
 
 dev_dependencies:
   flutter_test:

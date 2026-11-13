@@ -3,15 +3,16 @@ description: SA version. A plugin which allows user dragging files to your flutt
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.3.0+3
+version: 0.4.0+4
 homepage: https://github.com/MixinNetwork/flutter-plugins/tree/main/packages/desktop_drop
 
 environment:
-  sdk: ">=2.16.0 <3.0.0"
+  sdk: '>=3.0.0 <4.0.0'
   flutter: ">=1.20.0"
 
 dependencies:
   cross_file: ^0.3.0
+  cupertino_ui: any
   flutter:
     sdk: flutter
   flutter_web_plugins:
@@ -21,9 +22,12 @@ dependencies:
       url: https://github.com/krijk/mylib01.git
 
 dev_dependencies:
-  flutter_lints: ^1.0.0
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
+
+dependency_overrides:
+  file: ^7.0.0
 
 flutter:
   plugin:

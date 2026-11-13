@@ -1,7 +1,7 @@
 // ignore_for_file: always_specify_types
 import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,10 +41,10 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
+          children: <Widget>[
             Text(
               'Drop files the area.'
                   '\n(Only English file names)'
@@ -113,7 +113,7 @@ class _ExmapleDragTargetState extends State<ExmapleDragTarget> {
       child: Container(
         height: 200,
         width: 200,
-        color: _dragging ? Colors.blue.withOpacity(0.4) : Colors.black26,
+        color: _dragging ? Colors.blue.withValues(alpha: 0.4) : Colors.black26,
         child: Stack(
           children: [
             if (_list.isEmpty)
@@ -125,9 +125,9 @@ class _ExmapleDragTargetState extends State<ExmapleDragTarget> {
                 alignment: Alignment.topRight,
                 child: Text(
                   '$offset',
-                  style: Theme.of(context).textTheme.caption,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-              )
+              ),
           ],
         ),
       ),

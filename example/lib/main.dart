@@ -1,5 +1,5 @@
 import 'package:desktop_drop/desktop_drop.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:cross_file/cross_file.dart';
 
 void main() {
@@ -16,11 +16,11 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Wrap(
+        body: const Wrap(
           direction: Axis.horizontal,
           runSpacing: 8,
           spacing: 8,
-          children: const [
+          children: [
             ExampleDragTarget(),
             ExampleDragTarget(),
             ExampleDragTarget(),
@@ -84,7 +84,7 @@ class _ExampleDragTargetState extends State<ExampleDragTarget> {
       child: Container(
         height: 200,
         width: 200,
-        color: _dragging ? Colors.blue.withOpacity(0.4) : Colors.black26,
+        color: _dragging ? Colors.blue.withValues(alpha: 0.4) : Colors.black26,
         child: Stack(
           children: [
             if (_list.isEmpty)
@@ -96,7 +96,7 @@ class _ExampleDragTargetState extends State<ExampleDragTarget> {
                 alignment: Alignment.topRight,
                 child: Text(
                   '$offset',
-                  style: Theme.of(context).textTheme.caption,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
               )
           ],
