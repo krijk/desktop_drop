@@ -5,6 +5,7 @@
 #include <sys/utsname.h>
 
 #include <cstring>
+#include <iostream>
 
 #include "messages.g.h"
 #include "desktop_drop_plugin_private.h"
@@ -26,12 +27,42 @@ gchar* desktop_drop_plugin_get_platform_version() {
 }
 
 static DesktopDropDesktopDropPluginApiGetPlatformVersionResponse *handle_get_platform_version(gpointer user_data) {
-  // The plugin instance is unused in this simple example, but more complex
-  // plugins may have plugin state to access here.
-  // DesktopDropPlugin* self = DESKTOP_DROP_PLUGIN(user_data);
-
   g_autofree gchar *version = desktop_drop_plugin_get_platform_version();
   return desktop_drop_desktop_drop_plugin_api_get_platform_version_response_new(version);
+}
+
+void on_drag_data_received(GtkWidget *widget, GdkDragContext *drag_context,
+                           gint x, gint y, GtkSelectionData *sdata, guint info,
+                           guint time, gpointer user_data) {
+  auto *channel = static_cast<FlMethodChannel *>(user_data);
+  auto *data = gtk_selection_data_get_data(sdata);
+  double point[] = {double(x), double(y)};
+  auto args = fl_value_new_list();
+  fl_value_append(args, fl_value_new_string((gchar *) data));
+  fl_value_append(args, fl_value_new_float_list(point, 2));
+  fl_method_channel_invoke_method(channel, "performOperation_linux", args,
+                                  nullptr, nullptr, nullptr);
+}
+
+void on_drag_motion(GtkWidget *widget, GdkDragContext *drag_context,
+                    gint x, gint y, guint time, gpointer user_data) {
+  auto *channel = static_cast<FlMethodChannel *>(user_data);
+  double point[] = {double(x), double(y)};
+  g_autoptr(FlValue) args = fl_value_new_float_list(point, 2);
+  fl_method_channel_invoke_method(channel, "updated", args,
+                                  nullptr, nullptr, nullptr);
+}
+
+void on_drag_leave(GtkWidget *widget, GdkDragContext *drag_context, guint time, gpointer user_data) {
+  auto *channel = static_cast<FlMethodChannel *>(user_data);
+  fl_method_channel_invoke_method(channel, "exited", nullptr,
+                                  nullptr, nullptr, nullptr);
+}
+
+static void desktop_drop_plugin_handle_method_call(
+    DesktopDropPlugin *self,
+    FlMethodCall *method_call) {
+  fl_method_call_respond_not_implemented(method_call, nullptr);
 }
 
 static void desktop_drop_plugin_dispose(GObject* object) {
@@ -44,6 +75,12 @@ static void desktop_drop_plugin_class_init(DesktopDropPluginClass* klass) {
 
 static void desktop_drop_plugin_init(DesktopDropPlugin* self) {}
 
+static void method_call_cb(FlMethodChannel *channel, FlMethodCall *method_call,
+                           gpointer user_data) {
+  DesktopDropPlugin *plugin = DESKTOP_DROP_PLUGIN(user_data);
+  desktop_drop_plugin_handle_method_call(plugin, method_call);
+}
+
 void desktop_drop_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
   DesktopDropPlugin* plugin = DESKTOP_DROP_PLUGIN(
       g_object_new(desktop_drop_plugin_get_type(), nullptr));
@@ -54,6 +91,29 @@ void desktop_drop_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
   desktop_drop_desktop_drop_plugin_api_set_method_handlers(
     fl_plugin_registrar_get_messenger(registrar), nullptr,
     &api_vtable, g_object_ref(plugin), g_object_unref);
+
+  auto *fl_view = fl_plugin_registrar_get_view(registrar);
+  static GtkTargetEntry entries[] = {
+      {strdup("STRING"), GTK_TARGET_OTHER_APP, 0}
+  };
+  gtk_drag_dest_set(GTK_WIDGET(fl_view), GTK_DEST_DEFAULT_ALL, entries, 1, GDK_ACTION_COPY);
+  gtk_drag_dest_add_uri_targets(GTK_WIDGET(fl_view));
+
+  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+  FlMethodChannel *channel =
+      fl_method_channel_new(fl_plugin_registrar_get_messenger(registrar),
+                            "desktop_drop",
+                            FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(channel, method_call_cb,
+                                            g_object_ref(plugin),
+                                            g_object_unref);
+
+  g_signal_connect(fl_view, "drag-motion",
+                   G_CALLBACK(on_drag_motion), channel);
+  g_signal_connect(GTK_WIDGET(fl_view), "drag-data-received",
+                   G_CALLBACK(on_drag_data_received), channel);
+  g_signal_connect(GTK_WIDGET(fl_view), "drag-leave",
+                   G_CALLBACK(on_drag_leave), channel);
 
   g_object_unref(plugin);
 }

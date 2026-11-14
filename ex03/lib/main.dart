@@ -148,9 +148,7 @@ class DragDropTarget extends StatefulWidget {
 class _DragDropTargetState extends State<DragDropTarget> {
   // file list
   final List<XFile> _list = [];
-
   bool _dragging = false;
-
   Offset? offset;
 
   /// Mime
@@ -179,19 +177,19 @@ class _DragDropTargetState extends State<DragDropTarget> {
       },
       onDragUpdated: (DropEventDetails details) {
         setState(() {
-          // offset = details.localPosition;
+          offset = details.localPosition;
         });
       },
       onDragEntered: (DropEventDetails detail) {
         setState(() {
           _dragging = true;
-          // offset = detail.localPosition;
+          offset = detail.localPosition;
         });
       },
       onDragExited: (DropEventDetails detail) {
         setState(() {
           _dragging = false;
-          // offset = null;
+          offset = null;
         });
       },
       child: Container(
