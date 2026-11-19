@@ -1,9 +1,8 @@
-// ignore_for_file: always_specify_types
+// ignore_for_file: always_specify_types, deprecated_member_use, avoid_web_libraries_in_flutter
 import 'dart:async';
 // In order to *not* need this ignore, consider extracting the "web" version
 // of your plugin as a separate package, instead of inlining it in the same
 // package as the core of your plugin.
-// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html show window, Url;
 import 'dart:html';
 

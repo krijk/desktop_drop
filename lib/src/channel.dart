@@ -82,7 +82,20 @@ class DesktopDrop {
             .cast<double>();
         final Iterable<String> paths = const LineSplitter()
             .convert(text)
-            .map((String e) => Uri.tryParse(e)?.path ?? '')
+            .map((String line) {
+              String s = line.trim();
+              if (s.startsWith('file://')) {
+                s = s.substring(7);
+                try {
+                  s = Uri.decodeComponent(s);
+                } catch (_) {
+                  try {
+                    s = Uri.decodeFull(s);
+                  } catch (_) {}
+                }
+              }
+              return s;
+            })
             .where((String e) => e.isNotEmpty);
         _notifyEvent(DropDoneEvent(
           location: Offset(offset[0], offset[1]),
